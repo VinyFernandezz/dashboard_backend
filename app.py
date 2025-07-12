@@ -1,19 +1,21 @@
-
-from flask import Flask, jsonify, request
+import os
+from flask import Flask
 from flask_cors import CORS
 
-app = Flask(__name__)
-CORS(app)
+def create_app():
+    app = Flask(__name__)
+    CORS(app)
 
-@app.route("/matriculas")
-def get_matriculas():
-    inicio = int(request.args.get("inicio", 2010))
-    fim = int(request.args.get("fim", 2025))
-    data = []
-    for ano in range(inicio, fim + 1):
-        total = 45000 + (ano - inicio) * 1000
-        data.append({"ano": ano, "total": total})
-    return jsonify(data)
+    # Register blueprints
+    from services.matriculas import bp as matriculas_bp
+    from services.health     import bp as health_bp
+
+    app.register_blueprint(health_bp)      # /health
+    app.register_blueprint(matriculas_bp)  # /matriculas
+
+    return app
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app = create_app()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
