@@ -11,12 +11,14 @@ DB_CONFIG = {
     "database": os.environ.get("DB_NAME", "moodle"),
 }
 
-@bp.route("/", methods=["GET"])
+@bp.route("/", methods=["GET"], strict_slashes=False)
+@bp.route("",  methods=["GET"])
 def get_matriculas():
     ano_inicio = int(request.args.get("inicio", 2010))
     ano_fim    = int(request.args.get("fim",    2025))
 
-    conn = mysql.connector.connect(**DB_CONFIG)
+    # Conexão ao banco (substitua por seu host real ou use mock)
+    conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=5)
     cursor = conn.cursor()
     query = """
         SELECT YEAR(FROM_UNIXTIME(timecreated)) ano, COUNT(*) total
