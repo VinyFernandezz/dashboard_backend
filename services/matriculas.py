@@ -5,7 +5,7 @@ import mysql.connector
 bp = Blueprint("matriculas", __name__, url_prefix="/matriculas")
 
 DB_CONFIG = {
-    "host": os.environ.get("DB_HOST", "10.17.34.202"),
+    "host": os.environ.get("DB_HOST", "200.129.17.231"),
     "user": os.environ.get("DB_USER", "danilo"),
     "password": os.environ.get("DB_PASS", "5yZ2UjcLA9SU6Rh1"),
     "database": os.environ.get("DB_NAME", "moodle"),
