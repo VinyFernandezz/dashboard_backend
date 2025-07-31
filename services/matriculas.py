@@ -21,11 +21,12 @@ def get_matriculas():
     conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=5)
     cursor = conn.cursor()
     query = """
-        SELECT YEAR(FROM_UNIXTIME(timecreated)) ano, COUNT(*) total
+        SELECT YEAR(FROM_UNIXTIME(timecreated)) AS ano,
+           COUNT(DISTINCT userid) AS total
         FROM mdl_user_enrolments
         WHERE YEAR(FROM_UNIXTIME(timecreated)) BETWEEN %s AND %s
         GROUP BY ano
-        ORDER BY ano
+        ORDER BY ano;
     """
     cursor.execute(query, (ano_inicio, ano_fim))
     results = cursor.fetchall()
