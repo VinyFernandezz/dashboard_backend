@@ -9,9 +9,11 @@ def create_app():
     # Register blueprints
     from services.matriculas import bp as matriculas_bp
     from services.health     import bp as health_bp
+    from services.courses    import bp as courses_bp
 
     app.register_blueprint(health_bp)      # /health
     app.register_blueprint(matriculas_bp)  # /matriculas
+    app.register_blueprint(courses_bp)     # /cursos
 
     return app
 
