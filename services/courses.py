@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 import os
 import mysql.connector
 
-bp = Blueprint("matriculas", __name__, url_prefix="/courses")
+bp = Blueprint("courses", __name__, url_prefix="/courses")
 
 DB_CONFIG = {
     "host": os.environ.get("DB_HOST", "200.129.17.231"),
