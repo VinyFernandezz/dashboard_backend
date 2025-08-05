@@ -33,18 +33,18 @@ def get_studentbycities():
     if typelocal == "municipio":
         base_query = """
             SELECT 
-                `Município de Residencia` AS municipio,
+                `City of Residence` AS municipio,
                 COUNT(*) AS total
             FROM 
                 suap_students
             WHERE 
-                `Estado` = "CE"
-                AND `Ano de Ingresso` BETWEEN %s AND %s
+                `State` = "CE"
+                AND `Year of Entry` BETWEEN %s AND %s
         """
         params = [ano_inicio, ano_fim]
         
         if modalility=="EAD":
-            base_query += " AND UPPER(`Natureza de Participacao`) = %s"
+            base_query += " AND UPPER(`Nature of Participation`) = %s"
             params.append(modalility)
 
         if courses:
@@ -53,24 +53,24 @@ def get_studentbycities():
             params.extend(courses)
 
         base_query += """
-            GROUP BY `Município de Residencia`
+            GROUP BY `City of Residence`
             ORDER BY municipio ASC;
         """
 
     else:  # assume "estado"
         base_query = """
             SELECT 
-                `Estado` AS estado,
+                `State` AS estado,
                 COUNT(*) AS total
             FROM 
                 suap_students
             WHERE 
-                `Ano de Ingresso` BETWEEN %s AND %s
+                `Year of Entry` BETWEEN %s AND %s
         """
         params = [ano_inicio, ano_fim]
 
         if modalility=="EAD":
-            base_query += " AND UPPER(`Natureza de Participacao`) = %s"
+            base_query += " AND UPPER(`Nature of Participation`) = %s"
             params.append(modalility)
 
 
@@ -80,7 +80,7 @@ def get_studentbycities():
             params.extend(courses)
 
         base_query += """
-            GROUP BY `Estado`
+            GROUP BY `State`
             ORDER BY estado ASC;
         """
 

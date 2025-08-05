@@ -18,9 +18,9 @@ def get_years():
     conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=5)
     cursor = conn.cursor()
     query = """
-        SELECT DISTINCT `Ano de Ingresso` AS ano
+        SELECT DISTINCT `Year of Entry` AS ano
         FROM suap_students
-        WHERE `Ano de Ingresso` IS NOT NULL
+        WHERE `Year of Entry` IS NOT NULL
         ORDER BY ano;
     """
     cursor.execute(query)
