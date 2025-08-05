@@ -19,49 +19,80 @@ def get_studentbycities():
     import pandas as pd
 
     ano_inicio = int(request.args.get("inicio", 2010))
-    ano_fim    = int(request.args.get("fim",    2025))
+    ano_fim    = int(request.args.get("fim", 2025))
     courses    = request.args.get("cursos", "").split(",")
-
+    typelocal  = request.args.get("typelocal", "municipio").lower()
+    modalility = request.args.get("coverage", "EAD").upper() 
+    
     if not courses or courses == [""]:
         courses = None
 
     conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=5)
     cursor = conn.cursor()
 
-    base_query = """
-        SELECT 
-            `Município de Residencia` AS municipio,
-            COUNT(*) AS total
-        FROM 
-            suap_students
-        WHERE 
-            `Estado` = "CE"
-            AND `Ano de Ingresso` BETWEEN %s AND %s
-    """
+    if typelocal == "municipio":
+        base_query = """
+            SELECT 
+                `Município de Residencia` AS municipio,
+                COUNT(*) AS total
+            FROM 
+                suap_students
+            WHERE 
+                `Estado` = "CE"
+                AND `Ano de Ingresso` BETWEEN %s AND %s
+        """
+        params = [ano_inicio, ano_fim]
+        
+        if modalility=="EAD":
+            base_query += " AND UPPER(`Natureza de Participacao`) = %s"
+            params.append(modalility)
 
-    params = [ano_inicio, ano_fim]
+        if courses:
+            placeholders = ', '.join(['%s'] * len(courses))
+            base_query += f" AND `Nome do Curso` IN ({placeholders})"
+            params.extend(courses)
 
-    # Aplica filtro por curso se informado
-    if courses:
-        placeholders = ', '.join(['%s'] * len(courses))
-        base_query += f" AND `Nome do Curso` IN ({placeholders})"
-        params.extend(courses)
+        base_query += """
+            GROUP BY `Município de Residencia`
+            ORDER BY municipio ASC;
+        """
 
-    base_query += """
-        GROUP BY `Município de Residencia`
-        ORDER BY municipio ASC;
-    """
+    else:  # assume "estado"
+        base_query = """
+            SELECT 
+                `Estado` AS estado,
+                COUNT(*) AS total
+            FROM 
+                suap_students
+            WHERE 
+                `Ano de Ingresso` BETWEEN %s AND %s
+        """
+        params = [ano_inicio, ano_fim]
+
+        if modalility=="EAD":
+            base_query += " AND UPPER(`Natureza de Participacao`) = %s"
+            params.append(modalility)
+
+
+        if courses:
+            placeholders = ', '.join(['%s'] * len(courses))
+            base_query += f" AND `Nome do Curso` IN ({placeholders})"
+            params.extend(courses)
+
+        base_query += """
+            GROUP BY `Estado`
+            ORDER BY estado ASC;
+        """
 
     cursor.execute(base_query, tuple(params))
     results = cursor.fetchall()
     cursor.close()
     conn.close()
 
-    # Coloca em um DataFrame
-    df = pd.DataFrame(results, columns=["municipio", "total"])
+    if typelocal == "municipio":
+        df = pd.DataFrame(results, columns=["municipio", "total"])
+        df["municipio"] = df["municipio"].str.replace("-CE", "", regex=False).str.strip()
+    else:
+        df = pd.DataFrame(results, columns=["estado", "total"])
 
-    # Remove o sufixo '-CE' do nome do município, se presente
-    df["municipio"] = df["municipio"].str.replace("-CE", "", regex=False).str.strip()
-
-    # Converte para JSON para retornar via API
     return jsonify(df.to_dict(orient="records"))
