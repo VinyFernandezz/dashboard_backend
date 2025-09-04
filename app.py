@@ -11,13 +11,15 @@ def create_app():
     from services.health     import bp as health_bp
     from services.courses    import bp as courses_bp
     from services.years_suap import bp as years_suap_bp 
-    from services.studentbycities import bp as studentbycities_bp   
+    from services.studentbycities import bp as studentbycities_bp
+    from services.poloChart import polo_chart_bp # Blueprint do poloChart   
 
     app.register_blueprint(health_bp)      # /health
     app.register_blueprint(matriculas_bp)  # /matriculas
     app.register_blueprint(courses_bp)     # /cursos
     app.register_blueprint(years_suap_bp)  # /years_suap
     app.register_blueprint(studentbycities_bp)  # /studentbycities
+    app.register_blueprint(polo_chart_bp, url_prefix='/api') #polo_char_bp registrado
 
     return app
 
