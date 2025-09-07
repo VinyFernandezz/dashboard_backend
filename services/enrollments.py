@@ -15,60 +15,90 @@ DB_CONFIG = {
     "database": os.environ.get("DB_NAME", "moodle"),
 }
 
-# --- Data Enrichment Dictionaries for Polo Analysis ---
+# --- UPDATED Data Enrichment Dictionaries ---
 POLE_COORDINATES = {
-    "ACARAU": {"lat": -2.8884, "lng": -40.1204}, "ACOPIARA": {"lat": -6.0954, "lng": -39.4503},
-    "ARACATI": {"lat": -4.5619, "lng": -37.7700}, "ARACOIABA": {"lat": -4.3725, "lng": -38.8111},
-    "BARBALHA": {"lat": -7.3085, "lng": -39.3039}, "BATURITE": {"lat": -4.3283, "lng": -38.8828},
-    "BEBERIBE": {"lat": -4.1800, "lng": -38.1303}, "BOA VIAGEM": {"lat": -5.1278, "lng": -39.7311},
-    "BREJO SANTO": {"lat": -7.4935, "lng": -38.9956}, "CAMOCIM": {"lat": -2.9033, "lng": -40.8436},
-    "CAMPOS SALES": {"lat": -7.0735, "lng": -40.3758}, "CANINDE": {"lat": -4.3575, "lng": -39.3125},
-    "CASCAVEL": {"lat": -4.1331, "lng": -38.2408}, "CAUCAIA": {"lat": -3.7361, "lng": -38.6531},
-    "CEDRO": {"lat": -6.6039, "lng": -39.0625}, "CRATEUS": {"lat": -5.1783, "lng": -40.6775},
-    "CRATO": {"lat": -7.2344, "lng": -39.4094}, "DEPUTADO IRAPUAN PINHEIRO": {"lat": -6.0125, "lng": -39.6389},
-    "EUSEBIO": {"lat": -3.8894, "lng": -38.4503}, "FORTALEZA": {"lat": -3.7319, "lng": -38.5267},
-    "GUARAMIRANGA": {"lat": -4.2608, "lng": -38.9333}, "HORIZONTE": {"lat": -4.0994, "lng": -38.4950},
-    "IBICUITINGA": {"lat": -4.9667, "lng": -38.6333}, "ICO": {"lat": -6.4014, "lng": -38.8617},
-    "IGUATU": {"lat": -6.3594, "lng": -39.2983}, "INDEPENDENCIA": {"lat": -5.3961, "lng": -40.3094},
-    "IPUEIRAS": {"lat": -4.5444, "lng": -40.1553}, "ITAPIPOCA": {"lat": -3.4942, "lng": -39.5786},
-    "JAGUARIBE": {"lat": -5.8953, "lng": -38.6253}, "JAGUARUANA": {"lat": -4.8339, "lng": -37.7817},
-    "JUAZEIRO DO NORTE": {"lat": -7.2128, "lng": -39.3144}, "LAVRAS DA MANGABEIRA": {"lat": -6.7486, "lng": -38.9664},
-    "LIMOEIRO DO NORTE": {"lat": -5.1458, "lng": -38.0983}, "MARACANAU": {"lat": -3.8661, "lng": -38.6264},
-    "MARANGUAPE": {"lat": -3.8897, "lng": -38.6839}, "MAURITI": {"lat": -7.3894, "lng": -38.7750},
-    "MISSAO VELHA": {"lat": -7.2469, "lng": -39.1436}, "MORADA NOVA": {"lat": -5.1067, "lng": -38.3719},
-    "NOVA RUSSAS": {"lat": -4.7083, "lng": -40.5608}, "OROS": {"lat": -6.2411, "lng": -38.9133},
-    "PARAMBU": {"lat": -6.2114, "lng": -40.6922}, "PARACURU": {"lat": -3.4111, "lng": -39.0267},
-    "PEDRA BRANCA": {"lat": -5.4522, "lng": -39.7153}, "PENTECOSTE": {"lat": -3.7919, "lng": -39.2689},
-    "PEREIRO": {"lat": -6.0403, "lng": -38.4608}, "QUIXADA": {"lat": -4.9711, "lng": -39.0156},
-    "QUIXERAMOBIM": {"lat": -5.1969, "lng": -39.2933}, "REDENCAO": {"lat": -4.2258, "lng": -38.7308},
-    "RUSSAS": {"lat": -4.9397, "lng": -37.9739}, "SANTA QUITERIA": {"lat": -4.3319, "lng": -40.1564},
-    "SAO GONCALO DO AMARANTE": {"lat": -3.6067, "lng": -38.9686}, "SENADOR POMPEU": {"lat": -5.5881, "lng": -39.3703},
-    "SOBRAL": {"lat": -3.6894, "lng": -40.3486}, "TABULEIRO DO NORTE": {"lat": -5.2319, "lng": -38.1256},
-    "TAMBORIL": {"lat": -4.8317, "lng": -40.3236}, "TAUÁ": {"lat": -6.0039, "lng": -40.2931},
-    "TIANGUA": {"lat": -3.7319, "lng": -40.9914}, "UBAJARA": {"lat": -3.8497, "lng": -40.9208},
-    "VARZEA ALEGRE": {"lat": -6.7869, "lng": -39.2953}, "VICOSA DO CEARA": {"lat": -3.5606, "lng": -41.0919}
+    "ACARAÚ": {"lat": -2.8890, "lng": -40.1132}, 
+    "ACOPIARA": {"lat": -6.0954, "lng": -39.4503}, 
+    "ARACATI": {"lat": -4.5684, "lng": -37.7681}, 
+    "ARACOIABA": {"lat": -4.3725, "lng": -38.8111},
+    "BARBALHA": {"lat": -7.3085, "lng": -39.3039},
+    "BATURITÉ": {"lat": -4.3434, "lng": -38.8639},
+    "BEBERIBE": {"lat": -4.1800, "lng": -38.1303},
+    "BOA VIAGEM": {"lat": -5.1278, "lng": -39.7311},
+    "BREJO SANTO": {"lat": -7.4935, "lng": -38.9956},
+    "CAMOCIM": {"lat": -2.9033, "lng": -40.8436},
+    "CAMPOS SALES": {"lat": -7.0735, "lng": -40.3758},
+    "CANINDÉ": {"lat": -4.3575, "lng": -39.3125},
+    "CASCAVEL": {"lat": -4.1331, "lng": -38.2408},
+    "CAUCAIA": {"lat": -3.7361, "lng": -38.6531},
+    "CEDRO": {"lat": -6.6039, "lng": -39.0625},
+    "CRATEÚS": {"lat": -5.1783, "lng": -40.6775},
+    "CRATO": {"lat": -7.2344, "lng": -39.4094},
+    "DEPUTADO IRAPUAN PINHEIRO": {"lat": -6.0125, "lng": -39.6389},
+    "EUSÉBIO": {"lat": -3.8894, "lng": -38.4503},
+    "FORTALEZA": {"lat": -3.7319, "lng": -38.5267},
+    "GUARAMIRANGA": {"lat": -4.2608, "lng": -38.9333},
+    "HORIZONTE": {"lat": -4.0994, "lng": -38.4950},
+    "IBICUITINGA": {"lat": -4.9667, "lng": -38.6333},
+    "ICÓ": {"lat": -6.4014, "lng": -38.8617},
+    "IGUATU": {"lat": -6.3594, "lng": -39.2983},
+    "INDEPENDÊNCIA": {"lat": -5.3961, "lng": -40.3094},
+    "IPUEIRAS": {"lat": -4.5444, "lng": -40.1553},
+    "ITAPIPOCA": {"lat": -3.4942, "lng": -39.5786},
+    "JAGUARIBE": {"lat": -5.8953, "lng": -38.6253},
+    "JAGUARUANA": {"lat": -4.8339, "lng": -37.7817},
+    "JUAZEIRO DO NORTE": {"lat": -7.2128, "lng": -39.3144},
+    "LAVRAS DA MANGABEIRA": {"lat": -6.7486, "lng": -38.9664},
+    "LIMOEIRO DO NORTE": {"lat": -5.1458, "lng": -38.0983},
+    "MARACANAÚ": {"lat": -3.8661, "lng": -38.6264},
+    "MARANGUAPE": {"lat": -3.8897, "lng": -38.6839},
+    "MAURITI": {"lat": -7.3894, "lng": -38.7750},
+    "MISSÃO VELHA": {"lat": -7.2469, "lng": -39.1436},
+    "MORADA NOVA": {"lat": -5.1067, "lng": -38.3719},
+    "NOVA RUSSAS": {"lat": -4.7083, "lng": -40.5608},
+    "ORÓS": {"lat": -6.2411, "lng": -38.9133},
+    "PARAMBU": {"lat": -6.2114, "lng": -40.6922},
+    "PARACURU": {"lat": -3.4111, "lng": -39.0267},
+    "PEDRA BRANCA": {"lat": -5.4522, "lng": -39.7153},
+    "PENTECOSTE": {"lat": -3.7919, "lng": -39.2689},
+    "PEREIRO": {"lat": -6.0403, "lng": -38.4608},
+    "QUIXADÁ": {"lat": -4.9711, "lng": -39.0156},
+    "QUIXERAMOBIM": {"lat": -5.1969, "lng": -39.2933},
+    "REDENÇÃO": {"lat": -4.2258, "lng": -38.7308},
+    "RUSSAS": {"lat": -4.9397, "lng": -37.9739},
+    "SANTA QUITÉRIA": {"lat": -4.3319, "lng": -40.1564},
+    "SÃO GONÇALO DO AMARANTE": {"lat": -3.6067, "lng": -38.9686},
+    "SENADOR POMPEU": {"lat": -5.5881, "lng": -39.3703},
+    "SOBRAL": {"lat": -3.6894, "lng": -40.3486},
+    "TABULEIRO DO NORTE": {"lat": -5.2319, "lng": -38.1256},
+    "TAMBORIL": {"lat": -4.8317, "lng": -40.3236},
+    "TAUÁ": {"lat": -6.0039, "lng": -40.2931},
+    "TIANGUÁ": {"lat": -3.7319, "lng": -40.9914},
+    "UBAJARA": {"lat": -3.8497, "lng": -40.9208},
+    "VÁRZEA ALEGRE": {"lat": -6.7869, "lng": -39.2953},
+    "VIÇOSA DO CEARÁ": {"lat": -3.5606, "lng": -41.0919}
 }
 
 POLO_TO_REGION_MAP = {
-    'DEFAULT': 'Não Mapeada', 'ACARAU': 'Litoral Norte', 'ACOPIARA': 'Sertão Central', 'ARACATI': 'Litoral Leste',
-    'ARACOIABA': 'Maciço de Baturité', 'BARBALHA': 'Cariri', 'BATURITE': 'Maciço de Baturité', 'BEBERIBE': 'Litoral Leste',
+    'DEFAULT': 'Não Mapeada', 'ACARAÚ': 'Litoral Norte', 'ACOPIARA': 'Sertão Central', 'ARACATI': 'Litoral Leste',
+    'ARACOIABA': 'Maciço de Baturité', 'BARBALHA': 'Cariri', 'BATURITÉ': 'Maciço de Baturité', 'BEBERIBE': 'Litoral Leste',
     'BOA VIAGEM': 'Sertão Central', 'BREJO SANTO': 'Cariri', 'CAMOCIM': 'Litoral Norte', 'CAMPOS SALES': 'Sertão dos Inhamuns',
-    'CANINDE': 'Sertão de Canindé', 'CASCAVEL': 'Litoral Leste', 'CAUCAIA': 'Metropolitana de Fortaleza', 'CEDRO': 'Centro-Sul',
-    'CRATEUS': 'Sertão dos Inhamuns', 'CRATO': 'Cariri', 'DEPUTADO IRAPUAN PINHEIRO': 'Sertão Central', 'EUSEBIO': 'Metropolitana de Fortaleza',
+    'CANINDÉ': 'Sertão de Canindé', 'CASCAVEL': 'Litoral Leste', 'CAUCAIA': 'Metropolitana de Fortaleza', 'CEDRO': 'Centro-Sul',
+    'CRATEÚS': 'Sertão dos Inhamuns', 'CRATO': 'Cariri', 'DEPUTADO IRAPUAN PINHEIRO': 'Sertão Central', 'EUSÉBIO': 'Metropolitana de Fortaleza',
     'FORTALEZA': 'Metropolitana de Fortaleza', 'GUARAMIRANGA': 'Maciço de Baturité', 'HORIZONTE': 'Metropolitana de Fortaleza',
-    'IBICUITINGA': 'Vale do Jaguaribe', 'ICO': 'Centro-Sul', 'IGUATU': 'Centro-Sul', 'INDEPENDENCIA': 'Sertão dos Inhamuns',
+    'IBICUITINGA': 'Vale do Jaguaribe', 'ICÓ': 'Centro-Sul', 'IGUATU': 'Centro-Sul', 'INDEPENDÊNCIA': 'Sertão dos Inhamuns',
     'IPUEIRAS': 'Serra da Ibiapaba', 'ITAPIPOCA': 'Litoral Oeste', 'JAGUARIBE': 'Vale do Jaguaribe', 'JAGUARUANA': 'Vale do Jaguaribe',
-    'JUAZEIRO DO NORTE': 'Cariri', 'LAVRAS DA MANGABEIRA': 'Centro-Sul', 'LIMOEIRO DO NORTE': 'Vale do Jaguaribe', 'MARACANAU': 'Metropolitana de Fortaleza',
-    'MARANGUAPE': 'Metropolitana de Fortaleza', 'MAURITI': 'Cariri', 'MISSAO VELHA': 'Cariri', 'MORADA NOVA': 'Vale do Jaguaribe',
-    'NOVA RUSSAS': 'Sertão de Crateús', 'OROS': 'Centro-Sul', 'PARAMBU': 'Sertão dos Inhamuns', 'PARACURU': 'Litoral Oeste',
-    'PEDRA BRANCA': 'Sertão Central', 'PENTECOSTE': 'Médio Curu', 'PEREIRO': 'Serra do Pereiro', 'QUIXADA': 'Sertão Central',
-    'QUIXERAMOBIM': 'Sertão Central', 'REDENCAO': 'Maciço de Baturité', 'RUSSAS': 'Vale do Jaguaribe', 'SANTA QUITERIA': 'Sertão de Crateús',
-    'SAO GONCALO DO AMARANTE': 'Metropolitana de Fortaleza', 'SENADOR POMPEU': 'Sertão Central', 'SOBRAL': 'Norte',
+    'JUAZEIRO DO NORTE': 'Cariri', 'LAVRAS DA MANGABEIRA': 'Centro-Sul', 'LIMOEIRO DO NORTE': 'Vale do Jaguaribe', 'MARACANAÚ': 'Metropolitana de Fortaleza',
+    'MARANGUAPE': 'Metropolitana de Fortaleza', 'MAURITI': 'Cariri', 'MISSÃO VELHA': 'Cariri', 'MORADA NOVA': 'Vale do Jaguaribe',
+    'NOVA RUSSAS': 'Sertão de Crateús', 'ORÓS': 'Centro-Sul', 'PARAMBU': 'Sertão dos Inhamuns', 'PARACURU': 'Litoral Oeste',
+    'PEDRA BRANCA': 'Sertão Central', 'PENTECOSTE': 'Médio Curu', 'PEREIRO': 'Serra do Pereiro', 'QUIXADÁ': 'Sertão Central',
+    'QUIXERAMOBIM': 'Sertão Central', 'REDENÇÃO': 'Maciço de Baturité', 'RUSSAS': 'Vale do Jaguaribe', 'SANTA QUITÉRIA': 'Sertão de Crateús',
+    'SÃO GONÇALO DO AMARANTE': 'Metropolitana de Fortaleza', 'SENADOR POMPEU': 'Sertão Central', 'SOBRAL': 'Norte',
     'TABULEIRO DO NORTE': 'Vale do Jaguaribe', 'TAMBORIL': 'Sertão de Crateús', 'TAUÁ': 'Sertão dos Inhamuns',
-    'TIANGUA': 'Serra da Ibiapaba', 'UBAJARA': 'Serra da Ibiapaba', 'VARZEA ALEGRE': 'Cariri', 'VICOSA DO CEARA': 'Serra da Ibiapaba'
+    'TIANGUÁ': 'Serra da Ibiapaba', 'UBAJARA': 'Serra da Ibiapaba', 'VÁRZEA ALEGRE': 'Cariri', 'VIÇOSA DO CEARÁ': 'Serra da Ibiapaba'
 }
 
-### --- ENROLLMENTS BY YEAR (from matriculas.py) ---
+### --- ENROLLMENTS BY YEAR  ---
 @bp.route("/by_year", methods=["GET"])
 def get_enrollments_by_year():
     start_year = int(request.args.get("inicio", 2010))
@@ -90,7 +120,7 @@ def get_enrollments_by_year():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-### --- ENROLLMENTS BY LOCATION (from studentbycities.py) ---
+### --- ENROLLMENTS BY LOCATION  ---
 @bp.route("/by_location", methods=["GET"])
 def get_enrollments_by_location():
     start_year = int(request.args.get("inicio", 2010))
@@ -125,7 +155,7 @@ def get_enrollments_by_location():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-### --- DISTINCT ENROLLMENT YEARS (from years_suap.py) ---
+### --- DISTINCT ENROLLMENT YEARS  ---
 @bp.route("/distinct_years", methods=["GET"])
 def get_distinct_years():
     try:
@@ -140,7 +170,7 @@ def get_distinct_years():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-### --- ENROLLMENTS BY POLO (from analysis.py) ---
+### --- ENROLLMENTS BY POLO  ---
 def get_processed_polo_data():
     try:
         conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=15)
@@ -185,18 +215,17 @@ def get_polo_yearly_matriculas():
         all_polo_data.append(polo_entry)
     return jsonify(all_polo_data)
 
+### --- TOTAL ENROLLMENTS BY YEAR ---
 @bp.route('/total_yearly', methods=['GET'])
 def get_total_yearly_enrollments():
     """
     Provides the total number of unique student registrations per year.
-    Useful for contextualizing the polo distribution data.
     """
     df_ead, error = get_processed_polo_data()
 
     if error:
         return jsonify({"error": "Database query failed", "details": error}), 500
     
-    # We use 'Registration' to count unique students
     yearly_totals = df_ead.groupby('year')['Registration'].nunique().reset_index()
     yearly_totals.rename(columns={'Registration': 'totalEnrollments', 'year': 'ano'}, inplace=True)
     

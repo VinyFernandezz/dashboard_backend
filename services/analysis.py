@@ -56,6 +56,37 @@ def get_gender_distribution():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@bp.route("/race", methods=["GET"])
+def get_ethnicity_distribution():
+    """
+    Fetches the distribution of students by ethnicity (Race).
+    """
+    modality_sql, params = get_modality_filter()
+    
+    column_name = "`Ethnicity/Race`"
+    
+    where_clauses = [f"{column_name} IS NOT NULL", f"{column_name} != ''"]
+    if modality_sql:
+        where_clauses.append(modality_sql)
+
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=10)
+        cursor = conn.cursor()
+        query = f"""
+            SELECT {column_name}, COUNT(*) as total FROM suap_students
+            WHERE {" AND ".join(where_clauses)}
+            GROUP BY {column_name} ORDER BY total DESC;
+        """
+        cursor.execute(query, tuple(params))
+        results = cursor.fetchall()
+        
+        data = [{"name": row[0], "value": row[1]} for row in results]
+        
+        cursor.close(); conn.close()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 @bp.route("/marital_status", methods=["GET"])
 def get_marital_status_distribution():
     """Fetches the distribution of students by marital status."""
@@ -216,7 +247,7 @@ def get_status_by_profile():
     allowed_profiles = {
         "gender": "`Gender`",
         "marital_status": "`Marital Status`",
-        "race": "`Race`",
+        "race": "`Ethnicity/Race`",
         "income": "`Per Capita Income`",
         "age": "age_bracket",
         "origin_state": "origin"
@@ -228,7 +259,7 @@ def get_status_by_profile():
     db_column_name = allowed_profiles[profile_param.lower()]
     status_column_name = "`Registration Status`"
     
-    # --- CORRECTED: Build base WHERE clause and params for modality ---
+    # --- Build base WHERE clause and params for modality ---
     where_clauses = []
     params = []
     if modality == 'EAD':
@@ -291,7 +322,7 @@ def get_status_by_profile():
             if where_clauses:
                 simple_where_clauses.extend(where_clauses)
             
-            # CORRECTED: Initialize order_by_clause with a default value
+            # Initialize order_by_clause with a default value
             order_by_clause = "ORDER BY profile_category, status"
             if profile_param.lower() == 'income':
                 order_by_clause = f"""
@@ -334,3 +365,28 @@ def get_status_by_profile():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+''' Function to show all the columns
+@bp.route("/discover_columns", methods=["GET"])
+def discover_student_columns():
+    """
+    A temporary utility to fetch all column names from the suap_students table.
+    """
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=10)
+        cursor = conn.cursor()
+
+        # This query inspects the database's metadata
+        query = "SHOW COLUMNS FROM suap_students;"
+
+        cursor.execute(query)
+        results = cursor.fetchall()
+
+        # Extract just the first item (the column name) from each row
+        column_names = [row[0] for row in results]
+
+        cursor.close(); conn.close()
+        return jsonify(column_names)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    '''
