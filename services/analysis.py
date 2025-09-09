@@ -116,38 +116,54 @@ def get_marital_status_distribution():
 def get_income_distribution():
     """
     Fetches the distribution by per capita income bracket,
-    sorted in a logical order.
+    converting numeric values to income ranges.
     """
     modality_sql, params = get_modality_filter()
     column_name = "`Per Capita Income`"
     where_clause = f"WHERE {column_name} IS NOT NULL AND {column_name} != ''"
     if modality_sql:
         where_clause += f" AND {modality_sql}"
-        
+       
     try:
         conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=10)
         cursor = conn.cursor()
-        
-        # Uses a CASE statement to define a custom sort order.
+       
+        # Query que converte valores numéricos em faixas de renda
         query = f"""
-            SELECT {column_name}, COUNT(*) as total 
+            SELECT 
+                CASE 
+                    WHEN {column_name} = '-' OR {column_name} = '' OR {column_name} IS NULL THEN 'Não Informado'
+                    WHEN CAST(REPLACE({column_name}, ',', '.') AS DECIMAL(10,2)) = 0 THEN 'Nenhuma Renda'
+                    WHEN CAST(REPLACE({column_name}, ',', '.') AS DECIMAL(10,2)) > 0 
+                         AND CAST(REPLACE({column_name}, ',', '.') AS DECIMAL(10,2)) <= 1 THEN 'Até 1 Salário Mínimo'
+                    WHEN CAST(REPLACE({column_name}, ',', '.') AS DECIMAL(10,2)) > 1 
+                         AND CAST(REPLACE({column_name}, ',', '.') AS DECIMAL(10,2)) <= 2 THEN 'De 1 a 2 Salários Mínimos'
+                    WHEN CAST(REPLACE({column_name}, ',', '.') AS DECIMAL(10,2)) > 2 
+                         AND CAST(REPLACE({column_name}, ',', '.') AS DECIMAL(10,2)) <= 3 THEN 'De 2 a 3 Salários Mínimos'
+                    WHEN CAST(REPLACE({column_name}, ',', '.') AS DECIMAL(10,2)) > 3 
+                         AND CAST(REPLACE({column_name}, ',', '.') AS DECIMAL(10,2)) <= 5 THEN 'De 3 a 5 Salários Mínimos'
+                    WHEN CAST(REPLACE({column_name}, ',', '.') AS DECIMAL(10,2)) > 5 THEN 'Acima de 5 Salários Mínimos'
+                    ELSE 'Outros'
+                END as income_group,
+                COUNT(*) as total
             FROM suap_students
             {where_clause}
-            GROUP BY {column_name}
+            GROUP BY income_group
             ORDER BY
-                CASE {column_name}
+                CASE income_group
                     WHEN 'Nenhuma Renda' THEN 1
                     WHEN 'Até 1 Salário Mínimo' THEN 2
                     WHEN 'De 1 a 2 Salários Mínimos' THEN 3
                     WHEN 'De 2 a 3 Salários Mínimos' THEN 4
                     WHEN 'De 3 a 5 Salários Mínimos' THEN 5
                     WHEN 'Acima de 5 Salários Mínimos' THEN 6
-                    ELSE 7
+                    WHEN 'Outros' THEN 7
+                    WHEN 'Não Informado' THEN 8
                 END;
         """
         cursor.execute(query, tuple(params))
         results = cursor.fetchall()
-        
+       
         data = [{"name": row[0], "value": row[1]} for row in results]
         cursor.close(); conn.close()
         return jsonify(data)
@@ -239,7 +255,8 @@ def get_origin_state_distribution():
 def get_status_by_profile():
     """
     Calculates student statuses crossed with a demographic profile,
-    correctly applying modality filters and custom sorting.
+    correctly applying modality filters, custom sorting, and grouping for both
+    income ranges and registration statuses.
     """
     profile_param = request.args.get('profile')
     modality = request.args.get("modality", "ALL").upper()
@@ -258,7 +275,28 @@ def get_status_by_profile():
 
     db_column_name = allowed_profiles[profile_param.lower()]
     status_column_name = "`Registration Status`"
-    
+
+    # --- LÓGICA DE AGRUPAMENTO DE STATUS (REINTEGRADA) ---
+    # Agrupa os múltiplos status detalhados em 4 categorias principais
+    status_category_sql = f"""
+        CASE
+            WHEN {status_column_name} IN (
+                'Concluído', 'Concludente', 'Formado', 'Aguardando Colação de Grau', 
+                'Aguardando ENADE', 'Estagiario (Concludente)', 'Projeto Final (Concludente)'
+            ) THEN 'Concluído'
+            WHEN {status_column_name} IN (
+                'Abandono', 'Cancelado Compulsoriamente', 'Cancelado Voluntariamente', 'Transferido Externo'
+            ) THEN 'Evasão'
+            WHEN {status_column_name} IN (
+                'Matriculado', 'Transferido Interno', 'Vínculo Institucional'
+            ) THEN 'Ativo'
+            WHEN {status_column_name} IN (
+                'Trancado', 'Trancado Voluntariamente', 'Não concluído'
+            ) THEN 'Em Risco'
+            ELSE 'Outro'
+        END
+    """
+
     # --- Build base WHERE clause and params for modality ---
     where_clauses = []
     params = []
@@ -267,24 +305,23 @@ def get_status_by_profile():
         params.append(modality)
 
     query = ""
-
     try:
         conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=15)
         cursor = conn.cursor()
 
+        # --- Lógica para perfil 'age' (com status agrupado) ---
         if profile_param.lower() == 'age':
             registration_date_col = "`Registration Date`"
             birth_date_col = "`Date of Birth`"
-            
             age_where_clauses = [f"{birth_date_col} IS NOT NULL", f"{registration_date_col} IS NOT NULL"]
             if where_clauses:
                 age_where_clauses.extend(where_clauses)
-
             query = f"""
-                SELECT age_bracket AS profile_category, {status_column_name} AS status, COUNT(*) as total
+                SELECT age_bracket AS profile_category, status_category AS status, COUNT(*) as total
                 FROM (
                     SELECT 
-                        {status_column_name}, `Nature of Participation`,
+                        {status_category_sql} AS status_category, 
+                        `Nature of Participation`,
                         CASE
                             WHEN TIMESTAMPDIFF(YEAR, STR_TO_DATE({birth_date_col}, '%d/%m/%Y'), STR_TO_DATE({registration_date_col}, '%d/%m/%Y')) < 18 THEN 'Menor de 18'
                             WHEN TIMESTAMPDIFF(YEAR, STR_TO_DATE({birth_date_col}, '%d/%m/%Y'), STR_TO_DATE({registration_date_col}, '%d/%m/%Y')) BETWEEN 18 AND 24 THEN '18-24 anos'
@@ -296,54 +333,88 @@ def get_status_by_profile():
                     FROM suap_students
                     WHERE {" AND ".join(age_where_clauses)}
                 ) AS calculated_table
-                WHERE age_bracket IS NOT NULL AND {status_column_name} IS NOT NULL AND {status_column_name} != ''
+                WHERE age_bracket IS NOT NULL AND status_category != 'Outro'
                 GROUP BY profile_category, status ORDER BY profile_category, status;
             """
+        # --- Lógica para perfil 'origin_state' (com status agrupado) ---
         elif profile_param.lower() == 'origin_state':
             state_column = "`State`"
             origin_where_clauses = [f"{state_column} IS NOT NULL", f"{state_column} != ''"]
             if where_clauses:
                 origin_where_clauses.extend(where_clauses)
-
             query = f"""
-                SELECT origin AS profile_category, {status_column_name} AS status, COUNT(*) as total
+                SELECT origin AS profile_category, status_category AS status, COUNT(*) as total
                 FROM (
                     SELECT
-                        {status_column_name}, `Nature of Participation`,
+                        {status_category_sql} AS status_category, 
+                        `Nature of Participation`,
                         CASE WHEN {state_column} = 'CE' THEN 'Ceará' ELSE 'Fora do Ceará' END AS origin
                     FROM suap_students
                     WHERE {" AND ".join(origin_where_clauses)}
                 ) AS calculated_table
-                WHERE {status_column_name} IS NOT NULL AND {status_column_name} != ''
+                WHERE status_category != 'Outro'
                 GROUP BY profile_category, status ORDER BY profile_category, status;
             """
-        else:
-            simple_where_clauses = [f"{db_column_name} IS NOT NULL", f"{db_column_name} != ''", f"{status_column_name} IS NOT NULL", f"{status_column_name} != ''"]
+        # --- Lógica para perfil 'income' (com ambos agrupamentos) ---
+        elif profile_param.lower() == 'income':
+            income_where_clauses = [f"{db_column_name} IS NOT NULL", f"{db_column_name} != ''", f"{status_column_name} IS NOT NULL", f"{status_column_name} != ''"]
             if where_clauses:
-                simple_where_clauses.extend(where_clauses)
-            
-            # Initialize order_by_clause with a default value
-            order_by_clause = "ORDER BY profile_category, status"
-            if profile_param.lower() == 'income':
-                order_by_clause = f"""
+                income_where_clauses.extend(where_clauses)
+            query = f"""
+                SELECT 
+                    income_group AS profile_category, 
+                    {status_category_sql} AS status, 
+                    COUNT(*) as total
+                FROM (
+                    SELECT 
+                        {status_column_name}, `Nature of Participation`,
+                        CASE
+                            WHEN {db_column_name} = '-' OR {db_column_name} = '' OR {db_column_name} IS NULL THEN 'Não Informado'
+                            WHEN CAST(REPLACE({db_column_name}, ',', '.') AS DECIMAL(10,2)) = 0 THEN 'Nenhuma Renda'
+                            WHEN CAST(REPLACE({db_column_name}, ',', '.') AS DECIMAL(10,2)) > 0 AND CAST(REPLACE({db_column_name}, ',', '.') AS DECIMAL(10,2)) <= 1 THEN 'Até 1 Salário Mínimo'
+                            WHEN CAST(REPLACE({db_column_name}, ',', '.') AS DECIMAL(10,2)) > 1 AND CAST(REPLACE({db_column_name}, ',', '.') AS DECIMAL(10,2)) <= 2 THEN 'De 1 a 2 Salários Mínimos'
+                            WHEN CAST(REPLACE({db_column_name}, ',', '.') AS DECIMAL(10,2)) > 2 AND CAST(REPLACE({db_column_name}, ',', '.') AS DECIMAL(10,2)) <= 3 THEN 'De 2 a 3 Salários Mínimos'
+                            WHEN CAST(REPLACE({db_column_name}, ',', '.') AS DECIMAL(10,2)) > 3 AND CAST(REPLACE({db_column_name}, ',', '.') AS DECIMAL(10,2)) <= 5 THEN 'De 3 a 5 Salários Mínimos'
+                            WHEN CAST(REPLACE({db_column_name}, ',', '.') AS DECIMAL(10,2)) > 5 THEN 'Acima de 5 Salários Mínimos'
+                            ELSE 'Outros'
+                        END as income_group
+                    FROM suap_students
+                    WHERE {" AND ".join(income_where_clauses)}
+                ) AS calculated_table
+                WHERE income_group IS NOT NULL
+                GROUP BY profile_category, status
+                HAVING status != 'Outro'
                 ORDER BY
-                    CASE {db_column_name}
+                    CASE profile_category
                         WHEN 'Nenhuma Renda' THEN 1
                         WHEN 'Até 1 Salário Mínimo' THEN 2
                         WHEN 'De 1 a 2 Salários Mínimos' THEN 3
                         WHEN 'De 2 a 3 Salários Mínimos' THEN 4
                         WHEN 'De 3 a 5 Salários Mínimos' THEN 5
                         WHEN 'Acima de 5 Salários Mínimos' THEN 6
-                        ELSE 7
+                        WHEN 'Outros' THEN 7
+                        WHEN 'Não Informado' THEN 8
+                        ELSE 9
                     END,
-                    status
-                """
+                    status;
+            """
+        # --- Lógica para perfis simples (com status agrupado) ---
+        else:
+            simple_where_clauses = [f"{db_column_name} IS NOT NULL", f"{db_column_name} != ''", f"{status_column_name} IS NOT NULL", f"{status_column_name} != ''"]
+            if where_clauses:
+                simple_where_clauses.extend(where_clauses)
+            
+            order_by_clause = "ORDER BY profile_category, status"
             
             query = f"""
-                SELECT {db_column_name} AS profile_category, {status_column_name} AS status, COUNT(*) AS total
+                SELECT 
+                    {db_column_name} AS profile_category, 
+                    {status_category_sql} AS status, 
+                    COUNT(*) AS total
                 FROM suap_students
                 WHERE {" AND ".join(simple_where_clauses)}
                 GROUP BY profile_category, status
+                HAVING status != 'Outro'
                 {order_by_clause};
             """
         
@@ -351,12 +422,14 @@ def get_status_by_profile():
         results = cursor.fetchall()
         cursor.close(); conn.close()
 
+        # --- Processamento dos resultados para o formato JSON aninhado ---
         processed_data = {}
         for row in results:
             profile_category, status, total = row
             if profile_param.lower() == 'gender':
                 gender_map = {"M": "Masculino", "F": "Feminino", "I": "Indefinido"}
                 profile_category = gender_map.get(profile_category, profile_category)
+            
             if profile_category not in processed_data:
                 processed_data[profile_category] = {}
             processed_data[profile_category][status] = total

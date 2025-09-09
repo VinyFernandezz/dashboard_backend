@@ -101,21 +101,23 @@ POLO_TO_REGION_MAP = {
 ### --- ENROLLMENTS BY YEAR  ---
 @bp.route("/by_year", methods=["GET"])
 def get_enrollments_by_year():
-    start_year = int(request.args.get("inicio", 2010))
-    end_year = int(request.args.get("fim", 2025))
+    """Fetches the total number of enrollments grouped by year."""
     try:
         conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=10)
         cursor = conn.cursor()
         query = """
-            SELECT YEAR(FROM_UNIXTIME(timecreated)) AS ano, COUNT(DISTINCT userid) AS total
-            FROM mdl_user_enrolments
-            WHERE YEAR(FROM_UNIXTIME(timecreated)) BETWEEN %s AND %s
-            GROUP BY ano ORDER BY ano;
+            SELECT YEAR(`Registration Date`) as year, COUNT(*) as total 
+            FROM suap_students
+            WHERE `Registration Date` IS NOT NULL
+            GROUP BY year ORDER BY year;
         """
-        cursor.execute(query, (start_year, end_year))
+        cursor.execute(query)
         results = cursor.fetchall()
+        
+        # --- ATUALIZADO: Padronizando a chave de saída para 'name' e 'value' ---
+        data = [{"name": str(row[0]), "value": row[1]} for row in results]
+        
         cursor.close(); conn.close()
-        data = [{"ano": row[0], "total": row[1]} for row in results]
         return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -141,16 +143,18 @@ def get_enrollments_by_location():
             where_clauses.append(f"`Nome do Curso` IN ({placeholders})")
             params.extend(courses)
         final_where_clause = " AND ".join(where_clauses)
+        
         if typelocal == "municipio":
-            query = f"SELECT `City of Residence` AS municipio, COUNT(*) AS total FROM suap_students WHERE `State` = 'CE' AND {final_where_clause} GROUP BY `City of Residence` ORDER BY municipio ASC;"
-            df_columns = ["municipio", "total"]
+            query = f"SELECT `City of Residence` AS name, COUNT(*) AS value FROM suap_students WHERE `State` = 'CE' AND {final_where_clause} GROUP BY `City of Residence` ORDER BY name ASC;"
         else:
-            query = f"SELECT `State` AS estado, COUNT(*) AS total FROM suap_students WHERE {final_where_clause} GROUP BY `State` ORDER BY estado ASC;"
-            df_columns = ["estado", "total"]
+            query = f"SELECT `State` AS name, COUNT(*) AS value FROM suap_students WHERE {final_where_clause} GROUP BY `State` ORDER BY name ASC;"
+            
         df = pd.read_sql(query, conn, params=params)
         conn.close()
+
         if typelocal == "municipio":
-            df["municipio"] = df["municipio"].str.replace("-CE", "", regex=False).str.strip()
+            df["name"] = df["name"].str.replace("-CE", "", regex=False).str.strip().str.upper()
+            
         return jsonify(df.to_dict(orient="records"))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -227,6 +231,28 @@ def get_total_yearly_enrollments():
         return jsonify({"error": "Database query failed", "details": error}), 500
     
     yearly_totals = df_ead.groupby('year')['Registration'].nunique().reset_index()
-    yearly_totals.rename(columns={'Registration': 'totalEnrollments', 'year': 'ano'}, inplace=True)
+    
+    # --- ATUALIZAÇÃO CRÍTICA: Renomeia as colunas para o padrão 'name' e 'value' ---
+    yearly_totals.rename(columns={'Registration': 'value', 'year': 'name'}, inplace=True)
+    
+    # Garante que o 'name' (ano) seja uma string para consistência
+    yearly_totals['name'] = yearly_totals['name'].astype(str)
     
     return jsonify(yearly_totals.to_dict(orient='records'))
+
+@bp.route('/by_polo_total', methods=['GET'])
+def get_total_enrollments_by_polo():
+    """
+    Provides the total number of unique student registrations per pole across all years.
+    """
+    df_ead, error = get_processed_polo_data()
+    if error:
+        return jsonify({"error": "Database query failed", "details": error}), 500
+
+    polo_totals = df_ead.groupby('polo')['Registration'].nunique().reset_index()
+    polo_totals.rename(columns={'Registration': 'value', 'polo': 'name'}, inplace=True)
+    
+    # Ordena do maior para o menor
+    polo_totals.sort_values(by='value', ascending=False, inplace=True)
+
+    return jsonify(polo_totals.to_dict(orient='records'))
