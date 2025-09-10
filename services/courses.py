@@ -101,51 +101,28 @@ def normalize_discipline(name):
                   'INTRODUCAO A EDUCACAO INCLUSIVA E TECNOLOGIAS ASSISTIVAS', name)
 
     return name
-@bp.route("/", methods=["GET"], strict_slashes=False)
-@bp.route("",  methods=["GET"])
+
+@bp.route("/", methods=["GET"])
 def get_courses():
-    # Conexão ao banco
     conn = mysql.connector.connect(**DB_CONFIG, connection_timeout=5)
     cursor = conn.cursor()
-
-    query = """
-        SELECT id, fullname FROM mdl_course
-    """
+    query = "SELECT id, fullname FROM mdl_course"
     cursor.execute(query)
     results = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    cursor.close(); conn.close()
 
-    # Cria o DataFrame
-    df = pd.DataFrame(results, columns=["id", "nome"])
+    df = pd.DataFrame(results, columns=["id", "fullname"])
+    df['fullname'] = df['fullname'].astype(str)
+    
+    # Aplica a normalização
+    df['name'] = df['fullname'].apply(normalize_discipline)
+    
+    # Remove nomes vazios e duplicados após a normalização
+    df = df[df['name'].str.strip() != ""]
+    df.drop_duplicates(subset="name", inplace=True)
+    df.sort_values(by="name", inplace=True)
+    
+    # Seleciona apenas as colunas 'id' e 'name' para o resultado final
+    final_df = df[['id', 'name']]
 
-    # Conversão e transformação
-    df['nome'] = df['nome'].astype(str)
-
-    df[['nome', 'class']] = df['nome'].apply(
-        lambda name: pd.Series(split_course_name(name))
-    )
-
-    df[['nome', 'semester']] = df['nome'].apply(
-        lambda name: pd.Series(extract_semester(name))
-    )
-
-    df[['nome', 'academic_code']] = df['nome'].apply(
-        lambda name: pd.Series(extract_course_code(name))
-    )
-
-    df['nome'] = df['nome'].apply(lambda name: clean_course_title(name))
-    df['nome'] = df['nome'].apply(lambda name: normalize_discipline(name))
-
-    # Remove colunas auxiliares
-    df.drop(columns=['class', 'semester', 'academic_code'], inplace=True)
-
-    # Remove nomes vazios e duplicados
-    df = df[df['nome'].str.strip() != ""]
-    df.drop_duplicates(subset="nome", inplace=True)
-
-    # Ordena os cursos por nome
-    df.sort_values(by="nome", inplace=True)
-
-    # Converte para JSON no formato {"cursos": [...]}
-    return jsonify({"cursos": df.to_dict(orient="records")})
+    return jsonify(final_df.to_dict(orient="records"))
