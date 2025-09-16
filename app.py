@@ -14,7 +14,7 @@ def create_app():
     from services.studentbycities import bp as studentbycities_bp
     from services.enrollments import bp as enrollments_bp
     from services.analysis import bp as analysis_bp
-    from services.Analytics_behavour import bp as analytics_behavour_bp
+    from services.analytics_behavour import bp as analytics_behavour_bp
     from services.polos import bp as polos_bp
     from services.campus import bp as campus_bp
 
