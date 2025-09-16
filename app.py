@@ -14,6 +14,7 @@ def create_app():
     from services.studentbycities import bp as studentbycities_bp  
     from services.enrollments import bp as enrollments_bp
     from services.analysis   import bp as analysis_bp 
+    from services.Analytics_behavour import bp as analytics_behavour_bp
 
     app.register_blueprint(health_bp)      # /health
     app.register_blueprint(matriculas_bp)  # /matriculas
@@ -22,6 +23,7 @@ def create_app():
     app.register_blueprint(studentbycities_bp)  # /studentbycities
     app.register_blueprint(enrollments_bp) # /enrollments
     app.register_blueprint(analysis_bp)    # /analysis
+    app.register_blueprint(analytics_behavour_bp)  # /analytics_behavour
 
     return app
 

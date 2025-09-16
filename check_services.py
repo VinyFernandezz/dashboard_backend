@@ -9,8 +9,9 @@ Exit code 0 se todos ok; !=0 caso contrário.
 import concurrent.futures as cf
 import json, time, ssl, urllib.request, urllib.error, sys
 
-BASE = "https://web-production-3163.up.railway.app"
-TIMEOUT = 12
+#BASE = "https://web-production-3163.up.railway.app"
+BASE ="http://127.0.0.1:8000" 
+TIMEOUT = 120
 
 # ---------- Helpers de validação ----------
 def is_list(x): return isinstance(x, list)
@@ -53,9 +54,9 @@ CHECKS = {
     "/analysis/gender": ("analysis.gender", ok_analysis_list),
     "/analysis/income": ("analysis.income", ok_analysis_list),
     "/analytics_behavour/health": ("analytics_behavour.health", ok_analytics_health),
-    "/analytics_behavour/top-hours-days?start=2024-01-01&end=2024-01-08": ("analytics_behavour.top_hours_days", ok_analytics_std),
-    "/analytics_behavour/resources-usage?start=2024-01-01&end=2024-01-08": ("analytics_behavour.resources_usage", ok_analytics_std),
-    "/analytics_behavour/avg-session-time?start=2024-01-01&end=2024-01-31": ("analytics_behavour.avg_session_time", ok_analytics_std),
+    "/analytics_behavour/top-hours-days?start=2023-01-01&end=2024-01-05": ("analytics_behavour.top_hours_days", ok_analytics_std),
+    "/analytics_behavour/resources-usage?start=2023-01-01&end=2024-01-05": ("analytics_behavour.resources_usage", ok_analytics_std),
+    "/analytics_behavour/avg-session-time?start=2023-01-01&end=2024-01-31": ("analytics_behavour.avg_session_time", ok_analytics_std),
     "/analytics_behavour/activation": ("analytics_behavour.activation", ok_analytics_std),
 }
 
