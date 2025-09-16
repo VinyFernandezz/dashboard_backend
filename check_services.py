@@ -9,8 +9,8 @@ Exit code 0 se todos ok; !=0 caso contrário.
 import concurrent.futures as cf
 import json, time, ssl, urllib.request, urllib.error, sys
 
-#BASE = "https://web-production-3163.up.railway.app"
-BASE ="http://127.0.0.1:8000" 
+BASE = "https://web-production-3163.up.railway.app"
+#BASE ="http://127.0.0.1:8000" 
 TIMEOUT = 120
 
 # ---------- Helpers de validação ----------
