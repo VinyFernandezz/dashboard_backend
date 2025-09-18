@@ -4,5 +4,6 @@ mysql-connector-python
 gunicorn
 pandas
 requests
+python-dotenv
 sqlalchemy
 PyMySQL

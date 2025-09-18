@@ -4,7 +4,10 @@ venv/
 .venv311/
 ENV/
 env/
-
 # Python junk
 __pycache__/
 *.pyc
+*.log
+.DS_Store
+.env
+.vscode/
